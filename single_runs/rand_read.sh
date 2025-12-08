@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # ==============================================================================
-# FIO Benchmark Script: Sequential Read (Targeting VHw-pr)
-# CORRECTED VERSION
+# FIO Benchmark Script: Random Read (Targeting Hp-pr)
+# Description: Tests Hypervisor Processing latency and IOPS capacity.
 # ==============================================================================
 
 # --- CONFIGURATION ---
@@ -14,25 +14,24 @@ NUMJOBS=1
 IODEPTH=32                      
 SIZE="5G"                       
 
-# Block sizes to test for Sequential Read
-BLOCK_SIZES=("256k" "512k" "1m")
+# Block sizes to test for Random Read (Small blocks stress the Hypervisor logic)
+BLOCK_SIZES=("4k" "8k" "16k")
 
 # --- PRE-FLIGHT CHECKS ---
 echo "-----------------------------------------------------------------"
-echo "Starting Sequential Read Benchmark (Target: VHw-pr)"
-echo "Hypervisor Processing & Caching Efficiency Test"
+echo "Starting Random Read Benchmark (Target: Hp-pr)"
+echo "Hypervisor Request Handling & Latency Test"
 echo "-----------------------------------------------------------------"
 
 # --- MAIN LOOP ---
 for BS in "${BLOCK_SIZES[@]}"; do
     echo ""
-    echo ">>> RUNNING TEST: Sequential Read | Block Size: $BS <<<"
+    echo ">>> RUNNING TEST: Random Read | Block Size: $BS <<<"
     
-    # REMOVED --minimal so we get human readable output
-    fio --name="seq_read_${BS}" \
+    fio --name="rand_read_${BS}" \
         --filename="${TEST_DIR}/${TEST_FILE}" \
         --ioengine=libaio \
-        --rw=read \
+        --rw=randread \
         --bs="${BS}" \
         --direct=1 \
         --numjobs=${NUMJOBS} \
@@ -42,15 +41,14 @@ for BS in "${BLOCK_SIZES[@]}"; do
         --time_based \
         --iodepth=${IODEPTH} \
         --group_reporting \
-        --output-format=normal > "result_seq_read_${BS}.txt"
+        --output-format=normal > "result_rand_read_${BS}.txt"
 
     # Parse the human-readable output for the result line
-    # This looks for the line containing "READ:" and prints it to your screen
     echo "   Completed. Results:"
-    grep "READ:" "result_seq_read_${BS}.txt" | head -1
+    # We grep for "READ:" which contains IOPS and BW
+    # Look specifically for the IOPS value in the output file later for your analysis
+    grep "READ:" "result_rand_read_${BS}.txt" | head -1
     
-    # Optional: Brief cooldown
-    sleep 5
 done
 
 # --- CLEANUP ---
@@ -60,3 +58,4 @@ echo "All tests completed."
 echo "Removing temporary test file..."
 rm "${TEST_DIR}/${TEST_FILE}"
 echo "Done."
+

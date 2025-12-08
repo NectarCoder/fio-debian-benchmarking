@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==============================================================================
-# FIO Benchmark Script: Sequential Write (Targeting VHw-pr)
+# FIO Benchmark Script: Sequential Read (Targeting VHw-pr)
 # ==============================================================================
 
 # --- CONFIGURATION ---
@@ -13,24 +13,24 @@ NUMJOBS=1
 IODEPTH=32                      
 SIZE="5G"                       
 
-# Block sizes to test for Sequential Write
+# Block sizes to test for Sequential Read
 BLOCK_SIZES=("256k" "512k" "1m")
 
 # --- PRE-FLIGHT CHECKS ---
 echo "-----------------------------------------------------------------"
-echo "Starting Sequential Write Benchmark (Target: VHw-pr)"
-echo "Hypervisor Write Handling & Buffer Flushing Test"
+echo "Starting Sequential Read Benchmark (Target: VHw-pr)"
+echo "Hypervisor Processing & Caching Efficiency Test"
 echo "-----------------------------------------------------------------"
 
 # --- MAIN LOOP ---
 for BS in "${BLOCK_SIZES[@]}"; do
     echo ""
-    echo ">>> RUNNING TEST: Sequential Write | Block Size: $BS <<<"
+    echo ">>> RUNNING TEST: Sequential Read | Block Size: $BS <<<"
     
-    fio --name="seq_write_${BS}" \
+    fio --name="seq_read_${BS}" \
         --filename="${TEST_DIR}/${TEST_FILE}" \
         --ioengine=libaio \
-        --rw=write \
+        --rw=read \
         --bs="${BS}" \
         --direct=1 \
         --numjobs=${NUMJOBS} \
@@ -40,17 +40,13 @@ for BS in "${BLOCK_SIZES[@]}"; do
         --time_based \
         --iodepth=${IODEPTH} \
         --group_reporting \
-        --output-format=normal > "result_seq_write_${BS}.txt"
+        --output-format=normal > "result_seq_read_${BS}.txt"
 
     # Parse the human-readable output for the result line
+    # This looks for the line containing "READ:" and prints it to your screen
     echo "   Completed. Results:"
-    # We look for "WRITE:" in the output to see bandwidth immediately
-    grep "WRITE:" "result_seq_write_${BS}.txt" | head -1
+    grep "READ:" "result_seq_read_${BS}.txt" | head -1
     
-    # CRITICAL: Sync disks and wait to clear Hypervisor/Host buffers
-    echo "   Syncing buffers and cooling down (10s)..."
-    sync
-    sleep 10
 done
 
 # --- CLEANUP ---

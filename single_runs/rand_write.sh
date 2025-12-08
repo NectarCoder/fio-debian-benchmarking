@@ -51,7 +51,6 @@ for BS in "${BLOCK_SIZES[@]}"; do
     # CRITICAL: Sync disks and wait to clear Hypervisor/Host buffers
     echo "   Syncing buffers and cooling down (10s)..."
     sync
-    sleep 10
 done
 
 # --- CLEANUP ---
