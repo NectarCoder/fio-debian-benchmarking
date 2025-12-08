@@ -56,8 +56,119 @@ def normalize_key(k: str) -> str:
     return k
 
 
+def describe(key: str) -> str | None:
+    # Exact key descriptions
+    desc_map = {
+        'job_name': 'fio job name',
+        'rw': 'workload type (read/write/randread/randwrite/rw)',
+        'ioengine': 'fio ioengine used',
+        'iodepth': 'queue depth per job',
+        'bs_r': 'read block size range',
+        'bs_w': 'write block size range',
+        'bs_t': 'total block size range',
+        'groupid': 'fio group id',
+        'jobs': 'number of jobs (threads/processes)',
+        'err': 'fio job error code',
+        'pid': 'fio job pid',
+        'timestamp': 'fio-reported wall-clock timestamp',
+        'fio_version': 'fio version',
+        'layout_files': 'number of files laid out',
+        'layout_size': 'file size used for layout',
+        'read_iops': 'read IOPS (fio)',
+        'read_bw': 'read bandwidth (fio)',
+        'read_io': 'total read bytes transferred',
+        'read_run': 'read run duration (msec range)',
+        'write_iops': 'write IOPS (fio)',
+        'write_bw': 'write bandwidth (fio)',
+        'write_io': 'total write bytes transferred',
+        'write_run': 'write run duration (msec range)',
+        'slat_min': 'submission latency min (ns)',
+        'slat_max': 'submission latency max (ns)',
+        'slat_avg': 'submission latency avg (ns)',
+        'slat_stdev': 'submission latency stdev (ns)',
+        'clat_min': 'completion latency min (usec)',
+        'clat_max': 'completion latency max (usec)',
+        'clat_avg': 'completion latency avg (usec)',
+        'clat_stdev': 'completion latency stdev (usec)',
+        'lat_usec_min': 'total latency min (usec)',
+        'lat_usec_max': 'total latency max (usec)',
+        'lat_usec_avg': 'total latency avg (usec)',
+        'lat_usec_stdev': 'total latency stdev (usec)',
+        'bw_min': 'bandwidth sample min',
+        'bw_max': 'bandwidth sample max',
+        'bw_per': 'bandwidth sample coverage percent',
+        'bw_avg': 'bandwidth sample avg',
+        'bw_stdev': 'bandwidth sample stdev',
+        'bw_samples': 'bandwidth samples count',
+        'iops_min': 'iops sample min',
+        'iops_max': 'iops sample max',
+        'iops_avg': 'iops sample avg',
+        'iops_stdev': 'iops sample stdev',
+        'iops_samples': 'iops samples count',
+        'cpu_usr': 'cpu user percent',
+        'cpu_sys': 'cpu system percent',
+        'cpu_ctx': 'context switches',
+        'cpu_majf': 'major faults',
+        'cpu_minf': 'minor faults',
+        'iodepth_dist_1': 'percent time at queue depth 1',
+        'iodepth_dist_2': 'percent time at queue depth 2',
+        'iodepth_dist_4': 'percent time at queue depth 4',
+        'iodepth_dist_8': 'percent time at queue depth 8',
+        'iodepth_dist_16': 'percent time at queue depth 16',
+        'iodepth_dist_32': 'percent time at queue depth 32',
+        'iodepth_dist_>=64': 'percent time at queue depth >=64',
+        'submit_0': 'submit queue depth bucket 0 percent',
+        'submit_4': 'submit queue depth bucket 4 percent',
+        'submit_8': 'submit queue depth bucket 8 percent',
+        'submit_16': 'submit queue depth bucket 16 percent',
+        'submit_32': 'submit queue depth bucket 32 percent',
+        'submit_64': 'submit queue depth bucket 64 percent',
+        'submit_>=64': 'submit queue depth bucket >=64 percent',
+        'complete_0': 'complete queue depth bucket 0 percent',
+        'complete_4': 'complete queue depth bucket 4 percent',
+        'complete_8': 'complete queue depth bucket 8 percent',
+        'complete_16': 'complete queue depth bucket 16 percent',
+        'complete_32': 'complete queue depth bucket 32 percent',
+        'complete_64': 'complete queue depth bucket 64 percent',
+        'complete_>=64': 'complete queue depth bucket >=64 percent',
+        'issued_total': 'issued rwts totals (r,w,trim,sync)',
+        'issued_short': 'short ios (r,w,trim,sync)',
+        'issued_dropped': 'dropped ios (r,w,trim,sync)',
+        'latency_cfg_target': 'latency target config',
+        'latency_cfg_window': 'latency window config',
+        'latency_cfg_percentile': 'latency percentile target',
+        'latency_cfg_depth': 'latency depth config',
+        'run_read_bw': 'run summary read bandwidth',
+        'run_read_io': 'run summary read bytes',
+        'run_read_run': 'run summary read duration',
+        'run_write_bw': 'run summary write bandwidth',
+        'run_write_io': 'run summary write bytes',
+        'run_write_run': 'run summary write duration',
+    }
+
+    # Patterned keys
+    if key.startswith('clat_pct_'):
+        return 'completion latency percentile (usec)'
+    if key.startswith('lat_usecpct_'):
+        return 'percent of IOs in latency bucket (usec)'
+    if key.startswith('lat_msecpct_'):
+        return 'percent of IOs in latency bucket (msec)'
+    if key.startswith('disk_'):
+        return 'per-disk fio disk stats'
+    if key.startswith('run_read_'):
+        return 'run summary (read)'
+    if key.startswith('run_write_'):
+        return 'run summary (write)'
+
+    return desc_map.get(key)
+
+
 def emit(out_list, k, v):
-    out_list.append(f"{k} = {v}")
+    desc = describe(k)
+    if desc:
+        out_list.append(f"{k} = {v}\t# {desc}")
+    else:
+        out_list.append(f"{k} = {v}")
 
 
 def parse_kv_list(line, prefix, out_list):
