@@ -15,13 +15,19 @@ IODEPTH=32
 SIZE="5G"                       
 
 # Block sizes to test for Random Read (Small blocks stress the Hypervisor logic)
-BLOCK_SIZES=("4k" "8k" "16k")
+BLOCK_SIZES=("2k" "4k" "8k" "12k" "16k")
 
 # --- PRE-FLIGHT CHECKS ---
 echo "-----------------------------------------------------------------"
 echo "Starting Random Read Benchmark (Target: Hp-pr)"
 echo "Hypervisor Request Handling & Latency Test"
 echo "-----------------------------------------------------------------"
+
+SCRIPT_BASENAME="$(basename \"$0\")"
+SCRIPT_DIR="$(cd "$(dirname "${0}")" && pwd -P)"
+OUTPUT_DIR="${SCRIPT_DIR}/${SCRIPT_BASENAME%.*}"
+mkdir -p "${OUTPUT_DIR}"
+echo "Output files will be written to: ${OUTPUT_DIR}"
 
 # --- MAIN LOOP ---
 for BS in "${BLOCK_SIZES[@]}"; do
@@ -41,13 +47,13 @@ for BS in "${BLOCK_SIZES[@]}"; do
         --time_based \
         --iodepth=${IODEPTH} \
         --group_reporting \
-        --output-format=normal > "result_rand_read_${BS}.txt"
+        --output-format=normal > "${OUTPUT_DIR}/result_rand_read_${BS}.txt"
 
     # Parse the human-readable output for the result line
     echo "   Completed. Results:"
     # We grep for "READ:" which contains IOPS and BW
     # Look specifically for the IOPS value in the output file later for your analysis
-    grep "READ:" "result_rand_read_${BS}.txt" | head -1
+    grep "READ:" "${OUTPUT_DIR}/result_rand_read_${BS}.txt" | head -1
     
 done
 
