@@ -2,6 +2,11 @@
 set -euo pipefail
 
 # Wrapper: call the Python parser if available
+if [[ $# -lt 1 ]]; then
+  echo "Usage: $0 <input-file> [output-file]" >&2
+  exit 2
+fi
+
 INPUT_FILE="$1"
 if [[ $# -ge 2 ]]; then
   OUTPUT_FILE="$2"
