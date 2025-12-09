@@ -7,7 +7,17 @@ RUNS=5
 OPS=(rand_read rand_write seq_read seq_write)
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
-SCRIPTS_DIR="${ROOT_DIR}/single_runs"
+# Locate `single_runs` directory. It may live either beside this script
+# (e.g. `fio_utils/single_runs`) or at the repo root (`../single_runs`).
+if [[ -d "${ROOT_DIR}/single_runs" ]]; then
+  SCRIPTS_DIR="${ROOT_DIR}/single_runs"
+elif [[ -d "${ROOT_DIR}/../single_runs" ]]; then
+  SCRIPTS_DIR="${ROOT_DIR}/../single_runs"
+else
+  echo "Cannot find 'single_runs' directory under ${ROOT_DIR} or its parent." >&2
+  exit 1
+fi
+
 COLLECT_DIR="${ROOT_DIR}/batch_results"
 PARSER_SH="${ROOT_DIR}/parse_fio_output.sh"
 
@@ -21,8 +31,8 @@ run_op() {
   local raw_dir="${run_dir}/raw"
   local parsed_dir="${run_dir}/parsed"
 
-  if [[ ! -x "${script}" ]]; then
-    echo "Missing or non-executable script: ${script}" >&2
+  if [[ ! -f "${script}" ]]; then
+    echo "Missing script: ${script}" >&2
     exit 1
   fi
 
