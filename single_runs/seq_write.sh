@@ -54,7 +54,6 @@ for BS in "${BLOCK_SIZES[@]}"; do
     grep "WRITE:" "${OUTPUT_DIR}/result_seq_write_${BS}.txt" | head -1
     
     # CRITICAL: Sync disks and wait to clear Hypervisor/Host buffers
-    echo "   Syncing buffers and cooling down (10s)..."
     sync
 done
 
