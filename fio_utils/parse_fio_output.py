@@ -11,6 +11,7 @@ import argparse
 import re
 import sys
 from pathlib import Path
+from typing import Optional
 
 KEY_PREFIXES = {
     'read': 'read_',
@@ -56,7 +57,7 @@ def normalize_key(k: str) -> str:
     return k
 
 
-def describe(key: str) -> str | None:
+def describe(key: str) -> Optional[str]:
     # Exact key descriptions
     desc_map = {
         'job_name': 'fio job name',

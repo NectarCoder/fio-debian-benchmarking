@@ -51,7 +51,7 @@ run_op() {
     mv "$f" "${raw_dir}/$(basename "$f")"
     moved=true
   done
-  if [[ "${moved}" != true ]]; then
+  if [[ "${moved}" == "false" ]]; then
     echo "No result files found for ${op} run ${run_idx}" >&2
   fi
 

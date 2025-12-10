@@ -23,7 +23,7 @@ echo "Starting Random Read Benchmark (Target: Hp-pr)"
 echo "Hypervisor Request Handling & Latency Test"
 echo "-----------------------------------------------------------------"
 
-SCRIPT_BASENAME="$(basename \"$0\")"
+SCRIPT_BASENAME="$(basename "$0")"
 SCRIPT_DIR="$(cd "$(dirname "${0}")" && pwd -P)"
 OUTPUT_DIR="${SCRIPT_DIR}/${SCRIPT_BASENAME%.*}"
 mkdir -p "${OUTPUT_DIR}"

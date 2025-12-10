@@ -31,7 +31,7 @@ GB_DEC = 1_000_000_000  # decimal GB
 class Record:
     run: int
     file: str
-    job_name: str | None
+    job_name: Optional[str]
     metrics: Dict[str, str]
 
     def get(self, key: str) -> Optional[str]:
